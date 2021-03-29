@@ -1,16 +1,25 @@
 import random
 import time
 import os
+import itertools
+import threading
+import sys
+from threading import Timer
+from alive_progress import alive_bar, config_handler, bouncing_spinner_factory
 
-os.system('')
+config_handler.set_global(length="35", bar="smooth",
+                          force_tty=False, enrich_print=True)
+hng_spinner = bouncing_spinner_factory('🛴', 10, hiding=False)
+os.system('')  # allows to print ANSI codes in terminal
 
-MAX_LEN = 10000
+MAX_MAGIC_LEN = 10000
 WORDS_SIMPLE = []
 WORDS_AVANGARDE = []
 PREFIXES = ['pane', 'mono', 'dyne', 'mini', 'mine', 'tele', 'poli', 'semi',
             'mane', 'tone', 'pine', 'solo', 'pupu', 'titi', 'mumu', 'pipi',
-            'para', 'nima', 'mana', 'tera', 'tra', 'pra', 'sra', 'fra', 'bra',
-            'mra', 'bry', 'pry', 'sry']
+            'para', 'nima', 'mana', 'tera', 'tite', 'pima', 'piba', 'breś',
+            'tra', 'pra', 'sra', 'fra', 'bra', 'mra', 'bry', 'pry', 'sry',
+            'cim', 'pre', 'sraj', 'preś', 'miau', 'sple', 'sper']
 
 
 def esc(code):
@@ -23,8 +32,9 @@ def main():
 
 def select_mode():
     modeString = input(
-        "by chciałeś/lubiałeś w trybie podstawowym (0), czy dla cwaniaka (1) " +
+        "\nHEJ HEJ. By chciałeś/lubiałeś w trybie podstawowym (0), czy dla cwaniaka (1) " +
         "w ramach tzw. trybu premp, powiedz szczerze: ")
+    print()
     if modeString in ("w trybie podstawowym", "0"):
         create_word_basic(modeString)
         output_words(WORDS_SIMPLE)
@@ -36,7 +46,7 @@ def select_mode():
 
 
 def create_word_basic(modeString):
-    for i in range(0, MAX_LEN):
+    for i in range(0, MAX_MAGIC_LEN):
         letters = []
         first_letter = random.choice("bpm")
         letters.append(first_letter)
@@ -60,7 +70,7 @@ def create_word_basic(modeString):
 
 
 def create_word_avantgarde(modeString):
-    for i in range(0, MAX_LEN):
+    for i in range(0, MAX_MAGIC_LEN):
         letters = []
         prefix = random.choice(PREFIXES)
         first_letter = random.choice("bpm")
@@ -80,11 +90,20 @@ def create_word_avantgarde(modeString):
             WORDS_AVANGARDE.append(word)
 
 
+
 def output_words(li):
-    for i in range(len(li)):
-        print(li[i], end="... ", flush=True)
-        time.sleep(0.01)
-    print('\x1b[6;30;42m' + 'C + M + B 2o21!' + '\x1b[0m')
+    total_length = len(WORDS_SIMPLE) or len(WORDS_AVANGARDE)
+    sleep_time = random.randint(0, 1)/2147483647
+    with alive_bar(total_length, calibrate=5, spinner="arrows") as bar:
+        for item in li:
+            time.sleep(sleep_time)
+            bar()
+    print()
+    for item in li:
+        time.sleep(sleep_time)
+        print(item, end="... ", flush=True)
+    print('\n\n\x1b[6;30;42m' + 'C + M + B 2o21!' + '\x1b[0m')
+    print("\na bapśmieni...? a papsi...?")
 
 
 if __name__ == '__main__':
