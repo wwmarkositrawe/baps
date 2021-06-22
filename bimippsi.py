@@ -4,14 +4,18 @@ import click
 import sys
 import numpy as np
 import time
+import colorama  #
+import colorsys
+import datetime
 from alive_progress import alive_bar, config_handler, bouncing_spinner_factory
 
+colorama.init()  #
+click.clear()
 config_handler.set_global(length="35", bar="smooth",
                           force_tty=False, enrich_print=True)
 # hng_spinner = bouncing_spinner_factory('🛴', 10, hiding=False)
 os.system('')  # allows to print ANSI codes in terminal
 
-MAX_MAGIC_LEN = 10000
 WORDS_SIMPLE = []
 WORDS_AVANGARDE = []
 PREFIXES = ['pane', 'mono', 'dyne', 'mini', 'mine', 'tele', 'poli', 'semi',
@@ -32,8 +36,8 @@ def cli():
 
 @cli.command("mode")
 @click.pass_context
-@click.option('--mode', type=click.Choice(['baps', 'premp'],
-                                          case_sensitive=False),
+@click.option('--mode', help="w jakim trybie utworzyc wyrazy", type=click.Choice(['baps', 'premp'],
+                                                                                 case_sensitive=False),
               prompt="\nHEJ HEJ. By chciałeś/lubiałeś w trybie podstawowym (baps), czy dla cwaniaka (premp)")
 def select_mode(ctx, mode):
     if mode == 'baps':
@@ -45,44 +49,47 @@ def select_mode(ctx, mode):
 
 
 def output_words(ctx, mode, li):
-    try:
-        limit = click.prompt('ile chcesz wyrazow cwaniaku [0-{}]: '.format(len(li)),
-                             type=click.IntRange(0, len(li)), default=20)
-        click.echo('\n')
-        with alive_bar(limit, calibrate=4, spinner="arrows") as bar:
-            for item in range(limit):
-                bar()
+    with click.open_file('log.txt', 'a') as f:
 
-        click.echo('\n')
-        
-        for i in range(0, limit):
-            click.echo(click.style("{}: {}".format(i, li[i]), fg=random_color(),
-                                   bg=random_color(), bold=True, reset=True))
+        try:
+            limit = click.prompt('ile chcesz wyrazow cwaniaku [0-{}]: '.format(len(li)),
+                                 type=click.IntRange(0, len(li)), default=20)
 
-            # click.echo("{}: ".format(i) + click.style("{}".format(li[i]), fg=random_color(),
-            #                        bg=random_color(), bold=True, reset=True))
+            f.write("*****{}***\n".format(datetime.datetime.now()))
+            for i in range(0, limit):
+                click.echo("{}: ".format(i) + click.style("{}".format(li[i]),
+                                                          fg=random_color(), bg=random_color(), bold=True, reset=True))
+                f.write("{}: {}\n". format(i, li[i]))
+            click.echo()
 
-        click.echo()
-        click.echo(click.style('C + M + B 2o21!', italic=True, reset=True))
-        click.echo()
-        click.echo(click.style("BYYY", reverse=True, reset=True))
-        click.echo()
-        click.echo(click.style("a bapśmieni?",
-                               strikethrough="True", reset=True))
-    except IndexError:
-        limit = 20
+            with alive_bar(limit, calibrate=4, spinner="arrows") as bar:
+                for item in range(limit):
+                    bar()
+
+            click.echo()
+            click.echo(click.style('C + M + B 2o21!', italic=True, reset=True))
+            click.echo()
+            click.echo(click.style("BYYY", reverse=True, reset=True))
+            click.echo()
+            click.echo(click.style("a bapśmieni?",
+                                   strikethrough="True", reset=True))
+            f.write("\n")
+        except IndexError:
+            limit = 20
 
 
 def random_color():
     # levels = range(32, 256, 32)
     # return tuple(random.choice(levels) for _ in range(3))
 
-
     # return [random.randint(0, 255),
     #                  random.randint(0, 255), random.randint(0, 255)]
 
+    # return tuple(np.random.randint(256, size=3))
+    h, s, l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+    r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
+    return (r, g, b)
 
-    return tuple(np.random.randint(256, size=3))
 
 def create_word_basic():
     # possibilities = 3 * 2 * 3 * 1 * 2 * 1 * 1 * 2 = 72
