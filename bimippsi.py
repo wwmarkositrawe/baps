@@ -25,6 +25,11 @@ PREFIXES = ['pane', 'mono', 'dyne', 'mini', 'mine', 'tele', 'poli', 'semi',
             'cim', 'pre', 'sraj', 'preś', 'miau', 'sple', 'sper', 'miaumu',
             'a', 'plene', 'trata']
 
+FAMILY_ROLES = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste', 'babki po kądzieli', 'babki po mieczu', 'babki stryjeczne', 'babki', 'bliźniaki', 'bracia',
+                'bracia cioteczni', 'bracia stryjeczni', 'bracia wujeczni', 'bratankowie', 'bratanice', 'bratowe', 'ciocie', 'cioteczne siostry', 'cioteczni bracia', 'ciotki',
+                'córki', 'dziadki', 'dziadki cioteczni', 'dziadki macierzyści', 'dziadki ojczyści', 'dziadki po kądzieli', 'dziadki po mieczu', 'dziadki stryjeczni', 'dziewierze', 'jątrwie', 'kuzyni', 'kuzynki', 'kuzynostwo', 'macochy', 'małżonkowie', 'mamy', 'matki', 'mężowie', 'naciotkowie', 'ojce', 'ojczymy', 'pasierby', 'pasierbice', 'pociotki', 'prababki', 'pradziady', 'prawnuczki', 'prawnuki', 'przybrane matki', 'przybrane ojce', 'przyrodnie siostry', 'przyrodni bracia', 'rodzeństwo',
+                'rodzeństwo cioteczne', 'rodzeństwo stryjeczne', 'rodzeństwo wujeczne', 'rodzice', 'siostry', 'siostry cioteczne', 'siostry stryjeczne', 'siostry wujeczne', 'siostrzenice', 'siostrzeńcy', 'stryjowie', 'stryjkowie', 'stryjenki', 'stryje', 'stryjostwo', 'swachny', 'swaty', 'swatowe', 'syny', 'synowe', 'szwagry', 'szwagierki', 'świekry', 'świekra', 'teściowe', 'teście', 'wnuczki', 'wnuki', 'współmałżonkowie', 'wujostwo', 'wujki', 'zięciowie', 'żony ']
+
 global li
 li = []
 
@@ -49,17 +54,17 @@ def select_mode(ctx, mode):
 
 
 def output_words(ctx, mode, li):
-    with click.open_file('log.txt', 'a') as f:
-
+    with click.open_file('log.txt', 'a', encoding='UTF-8') as f:
         try:
-            limit = click.prompt('ile chcesz wyrazow cwaniaku [0-{}]: '.format(len(li)),
-                                 type=click.IntRange(0, len(li)), default=20)
+            limit = click.prompt('ile ma byc cwaniaku [0-{}]: '.format(len(li)),
+                                type=click.IntRange(0, len(li)), default=20)
 
             f.write("*****{}***\n".format(datetime.datetime.now()))
             for i in range(0, limit):
-                click.echo("{}: ".format(i) + click.style("{}".format(li[i]),
-                                                          fg=random_color(), bg=random_color(), bold=True, reset=True))
-                f.write("{}: {}\n". format(i, li[i]))
+                random_role = random.choice(FAMILY_ROLES)
+                click.echo("{}: ".format(i) + click.style("{} {}".format(random_role, li[i]),
+                                                        fg=random_color(), bg=random_color(), bold=True, reset=True))
+                f.write("{}: {} {}\n". format(i, random_role, li[i]))
             click.echo()
 
             with alive_bar(limit, calibrate=4, spinner="arrows") as bar:
@@ -72,10 +77,11 @@ def output_words(ctx, mode, li):
             click.echo(click.style("BYYY", reverse=True, reset=True))
             click.echo()
             click.echo(click.style("a bapśmieni?",
-                                   strikethrough="True", reset=True))
+                                strikethrough="True", reset=True))
             f.write("\n")
         except IndexError:
             limit = 20
+       
 
 
 def random_color():
@@ -86,7 +92,7 @@ def random_color():
     #                  random.randint(0, 255), random.randint(0, 255)]
 
     # return tuple(np.random.randint(256, size=3))
-    h, s, l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+    h, s, l = random.random(), 0.6 + random.random()/2.0, 0.4 + random.random()/5.0
     r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
     return (r, g, b)
 
