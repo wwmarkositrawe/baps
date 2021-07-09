@@ -49,6 +49,7 @@ family_roles = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste
                 'homokomando']
 
 prefixes_count = 1
+suffix = ''
 
 global li
 li = []
@@ -74,6 +75,8 @@ def cli():
 def select_mode(ctx, mode):
     global prefixes_count
     prefixes_count = 1
+    global suffix
+    suffix = 'pasznia'
     if mode == 'baps':
         create_word_basic()
         output_words(ctx, 'baps', words_simple)
@@ -94,6 +97,22 @@ def select_mode(ctx, mode):
                 print('zapytam jeszcze raz, czy jestes gotow')
             finally:
                 prefixes_count = prefixes_count
+        while True:
+            try:
+                suffix = str(input('byl(a)bys ewentualnie zainteresowan(y/a) koncowka `pasznia`? (tak, nie): '))
+                if suffix.lower() == 'tak':
+                    suffix = "pasznia"
+                    break
+                elif suffix.lower() != 'tak':
+                    print('... nie nie bedzie ci dane xd')
+                    suffix = ""
+                    break
+            except TypeError:
+                print('nie tak jak trzeba :(')
+            except ValueError:
+                print('zapytam jeszcze raz, czy jestes gotow')
+            finally: pass
+            
         create_word_avantgarde()
         output_words(ctx, 'premp', words_avangarde)
 
@@ -101,8 +120,8 @@ def select_mode(ctx, mode):
 def output_words(ctx, mode, li):
     with click.open_file('log.txt', 'a', encoding='UTF-8') as f:
         try:
-            limit = click.prompt('ile ma byc cwaniaku [0-{}]: '.format(len(li)),
-                                 type=click.IntRange(0, len(li)), default=20)
+            limit = click.prompt('ile ma byc cwaniaku [1-{}]: '.format(len(li)),
+                                 type=click.IntRange(1, len(li)), default=20)
 
             f.write("*****{}***\n".format(datetime.datetime.now()))
             for i in range(0, limit):
@@ -201,7 +220,7 @@ def create_word_avantgarde():
         while cnt < prefixes_count:
             word += set_prefix()
             cnt += 1
-        word += "".join(letters)
+        word += "".join(letters) + suffix
 
         if word not in words_avangarde:
             words_avangarde.append(word)
