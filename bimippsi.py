@@ -2,36 +2,63 @@ import random
 import os
 import click
 import sys
-import numpy as np
 import time
-import colorama  #
+import colorama  # ensuring color support
 import colorsys
 import datetime
+import numpy as np
 from alive_progress import alive_bar, config_handler, bouncing_spinner_factory
 
-colorama.init()  #
+colorama.init()  # ensuring color support
 click.clear()
 config_handler.set_global(length="35", bar="smooth",
                           force_tty=False, enrich_print=True)
 # hng_spinner = bouncing_spinner_factory('🛴', 10, hiding=False)
 os.system('')  # allows to print ANSI codes in terminal
 
-WORDS_SIMPLE = []
-WORDS_AVANGARDE = []
-PREFIXES = ['pane', 'mono', 'dyne', 'mini', 'mine', 'tele', 'poli', 'semi',
+words_simple = []
+words_avangarde = []
+prefixes = ['pane', 'mono', 'dyne', 'mini', 'mine', 'tele', 'poli', 'semi',
             'mane', 'tone', 'pine', 'solo', 'pupu', 'titi', 'mumu', 'pipi',
             'para', 'nima', 'mana', 'tera', 'tite', 'pima', 'piba', 'breś',
             'tra', 'pra', 'sra', 'fra', 'bra', 'mra', 'bry', 'pry', 'sry',
             'cim', 'pre', 'sraj', 'preś', 'miau', 'sple', 'sper', 'miaumu',
             'a', 'plene', 'trata']
 
-FAMILY_ROLES = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste', 'babki po kądzieli', 'babki po mieczu', 'babki stryjeczne', 'babki', 'bliźniaki', 'bracia',
-                'bracia cioteczni', 'bracia stryjeczni', 'bracia wujeczni', 'bratankowie', 'bratanice', 'bratowe', 'ciocie', 'cioteczne siostry', 'cioteczni bracia', 'ciotki',
-                'córki', 'dziadki', 'dziadki cioteczni', 'dziadki macierzyści', 'dziadki ojczyści', 'dziadki po kądzieli', 'dziadki po mieczu', 'dziadki stryjeczni', 'dziewierze', 'jątrwie', 'kuzyni', 'kuzynki', 'kuzynostwo', 'macochy', 'małżonkowie', 'mamy', 'matki', 'mężowie', 'naciotkowie', 'ojce', 'ojczymy', 'pasierby', 'pasierbice', 'pociotki', 'prababki', 'pradziady', 'prawnuczki', 'prawnuki', 'przybrane matki', 'przybrane ojce', 'przyrodnie siostry', 'przyrodni bracia', 'rodzeństwo',
-                'rodzeństwo cioteczne', 'rodzeństwo stryjeczne', 'rodzeństwo wujeczne', 'rodzice', 'siostry', 'siostry cioteczne', 'siostry stryjeczne', 'siostry wujeczne', 'siostrzenice', 'siostrzeńcy', 'stryjowie', 'stryjkowie', 'stryjenki', 'stryje', 'stryjostwo', 'swachny', 'swaty', 'swatowe', 'syny', 'synowe', 'szwagry', 'szwagierki', 'świekry', 'świekra', 'teściowe', 'teście', 'wnuczki', 'wnuki', 'współmałżonkowie', 'wujostwo', 'wujki', 'zięciowie', 'żony ']
+family_roles = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste',
+                'babki po kądzieli', 'babki po mieczu', 'babki stryjeczne',
+                'babki', 'bliźniaki', 'bracia', 'bracia cioteczni',
+                'bracia stryjeczni', 'bracia wujeczni', 'bratankowie',
+                'bratanice', 'bratowe', 'ciocie', 'cioteczne siostry',
+                'cioteczni bracia', 'ciotki', 'córki', 'dziadki',
+                'dziadki cioteczni', 'dziadki macierzyści', 'dziadki ojczyści',
+                'dziadki po kądzieli', 'dziadki po mieczu', 'dziadki stryjeczni',
+                'dziewierze', 'jątrwie', 'kuzyni', 'kuzynki', 'kuzynostwo',
+                'macochy', 'małżonkowie', 'mamy', 'matki', 'mężowie',
+                'naciotkowie', 'ojce', 'ojczymy', 'pasierby', 'pasierbice',
+                'pociotki', 'prababki', 'pradziady', 'prawnuczki', 'prawnuki',
+                'przybrane matki', 'przybrane ojce', 'przyrodnie siostry',
+                'przyrodni bracia', 'rodzeństwo', 'rodzeństwo cioteczne',
+                'rodzeństwo stryjeczne', 'rodzeństwo wujeczne', 'rodzice',
+                'siostry', 'siostry cioteczne', 'siostry stryjeczne',
+                'siostry wujeczne', 'siostrzenice', 'siostrzeńcy', 'stryjowie',
+                'stryjkowie', 'stryjenki', 'stryje', 'stryjostwo', 'swachny',
+                'swaty', 'swatowe', 'syny', 'synowe', 'szwagry', 'szwagierki',
+                'świekry', 'świekra', 'teściowe', 'teście', 'wnuczki', 'wnuki',
+                'współmałżonkowie', 'wujostwo', 'wujki', 'zięciowie', 'żony',
+                'homokomando']
+
+prefixes_count = 1
 
 global li
 li = []
+
+MIN_PRE = 1
+MAX_PRE = 3
+
+
+def set_prefix():
+    return random.choice(prefixes)
 
 
 @click.group(help="CLI app to create words meeting certain conditions")
@@ -41,29 +68,50 @@ def cli():
 
 @cli.command("mode")
 @click.pass_context
-@click.option('--mode', help="w jakim trybie utworzyc wyrazy", type=click.Choice(['baps', 'premp'],
-                                                                                 case_sensitive=False),
+@click.option('--mode', help="w jakim trybie utworzyc wyrazy",
+              type=click.Choice(['baps', 'premp'], case_sensitive=False),
               prompt="\nHEJ HEJ. By chciałeś/lubiałeś w trybie podstawowym (baps), czy dla cwaniaka (premp)")
 def select_mode(ctx, mode):
+    global prefixes_count
+    prefixes_count = 1
     if mode == 'baps':
         create_word_basic()
-        output_words(ctx, 'baps', WORDS_SIMPLE)
+        output_words(ctx, 'baps', words_simple)
     elif mode == 'premp':
+        while True:
+            try:
+                prefixes_count = int(
+                    input('ile chcesz przedrostków cwaniaku [{}-{}]: '.format(MIN_PRE, MAX_PRE)))
+                if prefixes_count < MIN_PRE:
+                    print('jeszcze zlotowke')
+                elif prefixes_count > MAX_PRE:
+                    print('za duzo chcialbys wiedziec')
+                else:
+                    break
+            except TypeError:
+                print('nie tak jak trzeba :(')
+            except ValueError:
+                print('zapytam jeszcze raz, czy jestes gotow')
+            finally:
+                prefixes_count = prefixes_count
         create_word_avantgarde()
-        output_words(ctx, 'premp', WORDS_AVANGARDE)
+        output_words(ctx, 'premp', words_avangarde)
 
 
 def output_words(ctx, mode, li):
     with click.open_file('log.txt', 'a', encoding='UTF-8') as f:
         try:
             limit = click.prompt('ile ma byc cwaniaku [0-{}]: '.format(len(li)),
-                                type=click.IntRange(0, len(li)), default=20)
+                                 type=click.IntRange(0, len(li)), default=20)
 
             f.write("*****{}***\n".format(datetime.datetime.now()))
             for i in range(0, limit):
-                random_role = random.choice(FAMILY_ROLES)
+                random_role = random.choice(family_roles)
                 click.echo("{}: ".format(i) + click.style("{} {}".format(random_role, li[i]),
-                                                        fg=random_color(), bg=random_color(), bold=True, reset=True))
+                                                          fg=random_color(),
+                                                          bg=random_color(),
+                                                          bold=True,
+                                                          reset=True))
                 f.write("{}: {} {}\n". format(i, random_role, li[i]))
             click.echo()
 
@@ -76,12 +124,12 @@ def output_words(ctx, mode, li):
             click.echo()
             click.echo(click.style("BYYY", reverse=True, reset=True))
             click.echo()
-            click.echo(click.style("a bapśmieni?",
-                                strikethrough="True", reset=True))
+            click.echo(click.style("a bapśmieni?\n",
+                                   strikethrough="True", reset=True))
             f.write("\n")
+
         except IndexError:
             limit = 20
-       
 
 
 def random_color():
@@ -91,10 +139,10 @@ def random_color():
     # return [random.randint(0, 255),
     #                  random.randint(0, 255), random.randint(0, 255)]
 
-    # return tuple(np.random.randint(256, size=3))
-    h, s, l = random.random(), 0.6 + random.random()/2.0, 0.4 + random.random()/5.0
-    r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
-    return (r, g, b)
+    return tuple(np.random.randint(256, size=3))
+    # h, s, l = random.random(), 1.2 + random.random()/0.56, 1.03 + random.random()/6.5
+    # r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
+    # return (r, g, b)
 
 
 def create_word_basic():
@@ -120,21 +168,21 @@ def create_word_basic():
         eighth_letter = random.choice("ia")
         letters.append(eighth_letter)
         word = "".join(letters)
-        if word not in WORDS_SIMPLE:
-            WORDS_SIMPLE.append(word)
-        if len(WORDS_SIMPLE) == possibilities:
+        if word not in words_simple:
+            words_simple.append(word)
+        if len(words_simple) == possibilities:
             finished = True
-    li = WORDS_SIMPLE
+    li = words_simple
     return li
 
 
 def create_word_avantgarde():
     # possibilities =  len(PREFIXES) * (3 * 2 * 2 * 1 * 1 * 2) = 43 * 24 = 1032
-    possibilities = len(PREFIXES) * 24
+    possibilities = len(prefixes) * 24
     finished = False
     while not finished:
         letters = []
-        prefix = random.choice(PREFIXES)
+        prefix = random.choice(prefixes)
         first_letter = random.choice("bpm")
         letters.append(first_letter)
         second_letter = random.choice("ia")
@@ -147,12 +195,19 @@ def create_word_avantgarde():
         letters.append(fifth_letter)
         sixth_letter = random.choice("ia")
         letters.append(sixth_letter)
-        word = prefix + "".join(letters)
-        if word not in WORDS_AVANGARDE:
-            WORDS_AVANGARDE.append(word)
-        if len(WORDS_AVANGARDE) == possibilities:
+
+        cnt = 0
+        word = ""
+        while cnt < prefixes_count:
+            word += set_prefix()
+            cnt += 1
+        word += "".join(letters)
+
+        if word not in words_avangarde:
+            words_avangarde.append(word)
+        if len(words_avangarde) == possibilities:
             finished = True
-    li = WORDS_AVANGARDE
+    li = words_avangarde
     return li
 
 
