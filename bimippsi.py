@@ -7,6 +7,12 @@ import colorama  # ensuring color support
 import colorsys
 import datetime
 import numpy as np
+import math
+from PIL import ImageColor
+from colorsys import hsv_to_rgb
+from operator import mul
+
+
 from alive_progress import alive_bar, config_handler, bouncing_spinner_factory
 
 colorama.init()  # ensuring color support
@@ -49,7 +55,7 @@ family_roles = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste
                 'homokomando']
 
 prefixes_count = 1
-suffix = ''
+suffix = 'pasznia'
 
 global li
 li = []
@@ -58,13 +64,13 @@ MIN_PRE = 1
 MAX_PRE = 3
 
 
-def set_prefix():
-    return random.choice(prefixes)
-
-
 @click.group(help="CLI app to create words meeting certain conditions")
 def cli():
     pass
+
+
+def set_prefix():
+    return random.choice(prefixes)
 
 
 @cli.command("mode")
@@ -99,11 +105,12 @@ def select_mode(ctx, mode):
                 prefixes_count = prefixes_count
         while True:
             try:
-                suffix = str(input('byl(a)bys ewentualnie zainteresowan(y/a) koncowka `pasznia`? (tak, nie): '))
-                if suffix.lower() == 'tak':
+                answer = str(input(
+                    'byl(a)bys ewentualnie zainteresowan(y/a) koncowka `pasznia`? (tak, nie): '))
+                if answer.lower() == 'tak':
                     suffix = "pasznia"
                     break
-                elif suffix.lower() != 'tak':
+                elif answer.lower() != 'tak':
                     print('... nie nie bedzie ci dane xd')
                     suffix = ""
                     break
@@ -111,8 +118,8 @@ def select_mode(ctx, mode):
                 print('nie tak jak trzeba :(')
             except ValueError:
                 print('zapytam jeszcze raz, czy jestes gotow')
-            finally: pass
-            
+            finally:
+                pass
         create_word_avantgarde()
         output_words(ctx, 'premp', words_avangarde)
 
@@ -128,9 +135,10 @@ def output_words(ctx, mode, li):
                 random_role = random.choice(family_roles)
                 click.echo("{}: ".format(i) + click.style("{} {}".format(random_role, li[i]),
                                                           fg=random_color(),
-                                                          bg=random_color(),
-                                                          bold=True,
-                                                          reset=True))
+                                                          bg="black"))
+
+                
+                
                 f.write("{}: {} {}\n". format(i, random_role, li[i]))
             click.echo()
 
@@ -139,29 +147,28 @@ def output_words(ctx, mode, li):
                     bar()
 
             click.echo()
-            click.echo(click.style('C + M + B 2o21!', italic=True, reset=True))
-            click.echo()
-            click.echo(click.style("BYYY", reverse=True, reset=True))
-            click.echo()
+            click.echo(click.style(
+                'C + M + B 2o21!\n', italic=True, reset=True))
+            click.echo(click.style("BYYY\n", reverse=True, reset=True))
             click.echo(click.style("a bapśmieni?\n",
                                    strikethrough="True", reset=True))
             f.write("\n")
-
         except IndexError:
             limit = 20
 
 
 def random_color():
-    # levels = range(32, 256, 32)
-    # return tuple(random.choice(levels) for _ in range(3))
+    golden_ratio = 1.618033988749895  
+    hue = random.random()
+    hue += golden_ratio
+    hue %= 1   
+    
 
-    # return [random.randint(0, 255),
-    #                  random.randint(0, 255), random.randint(0, 255)]
+    h_color = '#{:02X}{:02X}{:02X}'.format(*tuple(int(x*100) for x in hsv_to_rgb(hue, 0.5, 0.95)))
 
-    return tuple(np.random.randint(256, size=3))
-    # h, s, l = random.random(), 1.2 + random.random()/0.56, 1.03 + random.random()/6.5
-    # r, g, b = [int(256*i) for i in colorsys.hls_to_rgb(h, l, s)]
-    # return (r, g, b)
+    print(ImageColor.getrgb(h_color))
+    return ImageColor.getrgb(h_color)
+
 
 
 def create_word_basic():
@@ -196,7 +203,7 @@ def create_word_basic():
 
 
 def create_word_avantgarde():
-    # possibilities =  len(PREFIXES) * (3 * 2 * 2 * 1 * 1 * 2) = 43 * 24 = 1032
+    # possibilities =  len(prefixes) * (3 * 2 * 2 * 1 * 1 * 2) = len(prefixes) * 24
     possibilities = len(prefixes) * 24
     finished = False
     while not finished:
