@@ -1,6 +1,9 @@
+# coding: utf8
+
 import random
 import os
 import click
+# import djclick as click
 import sys
 import time
 import colorama  # ensuring color support
@@ -8,6 +11,7 @@ import colorsys
 import datetime
 import numpy as np
 import math
+import itertools
 from PIL import ImageColor
 from colorsys import hsv_to_rgb
 from operator import mul
@@ -137,8 +141,6 @@ def output_words(ctx, mode, li):
                                                           fg=random_color(),
                                                           bg="black"))
 
-                
-                
                 f.write("{}: {} {}\n". format(i, random_role, li[i]))
             click.echo()
 
@@ -147,29 +149,25 @@ def output_words(ctx, mode, li):
                     bar()
 
             click.echo()
-            click.echo(click.style(
-                'C + M + B 2o21!\n', italic=True, reset=True))
-            click.echo(click.style("BYYY\n", reverse=True, reset=True))
-            click.echo(click.style("a bapśmieni?\n",
-                                   strikethrough="True", reset=True))
+            click.echo('C + M + B 2o21!\n')
+            click.echo("BYYY\n")
+            click.echo("a bapśmieni?\n")
             f.write("\n")
         except IndexError:
             limit = 20
 
 
 def random_color():
-    golden_ratio = 1.618033988749895  
+    generated_colors = []
+    golden_ratio = 1.618033988749895
     hue = random.random()
     hue += golden_ratio
-    hue %= 1   
-    
+    hue %= 1
 
-    h_color = '#{:02X}{:02X}{:02X}'.format(*tuple(int(x*100) for x in hsv_to_rgb(hue, 0.5, 0.95)))
-
-    print(ImageColor.getrgb(h_color))
-    return ImageColor.getrgb(h_color)
-
-
+    h_color = '#{:02X}{:02X}{:02X}'.format(
+        *tuple(int(x*255) for x in hsv_to_rgb(hue, 0.5, 0.95)))
+    # print(ImageColor.getcolor(h_color, "RGB"))
+    return ImageColor.getcolor(h_color, "RGB")
 
 def create_word_basic():
     # possibilities = 3 * 2 * 3 * 1 * 2 * 1 * 1 * 2 = 72
@@ -229,6 +227,7 @@ def create_word_avantgarde():
             cnt += 1
         word += "".join(letters) + suffix
 
+    
         if word not in words_avangarde:
             words_avangarde.append(word)
         if len(words_avangarde) == possibilities:
