@@ -59,7 +59,7 @@ family_roles = ['babki', 'babki cioteczne', 'babki macierzyste', 'babki ojczyste
                 'homokomando']
 
 prefixes_count = 1
-suffix = 'pasznia'
+suffixes = ['pasznia', 'cześ']
 
 global li
 li = []
@@ -110,9 +110,9 @@ def select_mode(ctx, mode):
         while True:
             try:
                 answer = str(input(
-                    'byl(a)bys ewentualnie zainteresowan(y/a) koncowka `pasznia`? (tak, nie): '))
+                    'byl(a)bys ewentualnie zainteresowan(y/a) koncowka `pasznia` lub `cześ`? (tak, nie): '))
                 if answer.lower() == 'tak':
-                    suffix = "pasznia"
+                    suffix = random.choice(suffixes)
                     break
                 elif answer.lower() != 'tak':
                     print('... nie nie bedzie ci dane xd')
@@ -158,16 +158,17 @@ def output_words(ctx, mode, li):
 
 
 def random_color():
-    generated_colors = []
-    golden_ratio = 1.618033988749895
-    hue = random.random()
-    hue += golden_ratio
-    hue %= 1
+    # generated_colors = []
+    # golden_ratio = 1.618033988749895
+    # hue = random.random()
+    # hue += golden_ratio
+    # hue %= 1
 
-    h_color = '#{:02X}{:02X}{:02X}'.format(
-        *tuple(int(x*255) for x in hsv_to_rgb(hue, 0.5, 0.95)))
-    # print(ImageColor.getcolor(h_color, "RGB"))
-    return ImageColor.getcolor(h_color, "RGB")
+    # h_color = '#{:02X}{:02X}{:02X}'.format(
+    #     *tuple(int(x*255) for x in hsv_to_rgb(hue, 0.5, 0.95)))
+    # # print(ImageColor.getcolor(h_color, "RGB"))
+    # return ImageColor.getcolor(h_color, "RGB")
+    return tuple(np.random.choice(range(256), size=3))
 
 def create_word_basic():
     # possibilities = 3 * 2 * 3 * 1 * 2 * 1 * 1 * 2 = 72
@@ -225,7 +226,7 @@ def create_word_avantgarde():
         while cnt < prefixes_count:
             word += set_prefix()
             cnt += 1
-        word += "".join(letters) + suffix
+        word += "".join(letters) + random.choice(suffixes)
 
     
         if word not in words_avangarde:
